@@ -66,6 +66,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
         refreshDisplay()
         startTimer()
+        enableLaunchAtLoginOnFirstRun()
     }
 
     private func startTimer() {
@@ -173,7 +174,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }))
 
         let login = ActionItem(title: "Launch at Login") { [weak self] in self?.toggleLaunchAtLogin() }
-        login.state = SMAppService.mainApp.status == .enabled ? .on : .off
+        login.state = launchAtLoginIsOn ? .on : .off
+        if SMAppService.mainApp.status == .requiresApproval {
+            login.title = "Launch at Login (approve in System Settings)"
+        }
         menu.addItem(login)
 
         menu.addItem(.separator())
@@ -195,14 +199,38 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         return parent
     }
 
+    /// True for installed copies (in /Applications or ~/Applications), so a
+    /// development build run from the project folder never registers itself.
+    private var isInstalled: Bool {
+        let path = Bundle.main.bundlePath
+        return path.hasPrefix("/Applications/") || path.hasPrefix(NSHomeDirectory() + "/Applications/")
+    }
+
+    private var launchAtLoginIsOn: Bool {
+        let status = SMAppService.mainApp.status
+        return status == .enabled || status == .requiresApproval
+    }
+
+    /// On the first run of an installed copy, start NetMeter at every login
+    /// automatically. After that the user's choice in the menu is respected.
+    private func enableLaunchAtLoginOnFirstRun() {
+        guard isInstalled, !defaults.bool(forKey: "launchAtLoginConfigured") else { return }
+        if !launchAtLoginIsOn { try? SMAppService.mainApp.register() }
+        if launchAtLoginIsOn { defaults.set(true, forKey: "launchAtLoginConfigured") } // else retry next launch
+    }
+
     private func toggleLaunchAtLogin() {
         let service = SMAppService.mainApp
         do {
-            if service.status == .enabled {
+            if launchAtLoginIsOn {
                 try service.unregister()
             } else {
                 try service.register()
+                if service.status == .requiresApproval {
+                    SMAppService.openSystemSettingsLoginItems() // let the user approve it
+                }
             }
+            defaults.set(true, forKey: "launchAtLoginConfigured")
         } catch {
             let alert = NSAlert()
             alert.messageText = "Couldn't change Launch at Login"

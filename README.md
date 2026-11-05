@@ -9,7 +9,7 @@ It shows your live download ↓ and upload ↑ speed right next to the battery a
 - Three layouts: two stacked lines, a single line, or download only
 - Update every 0.5, 1, 2 or 5 seconds
 - Shows the data used since launch
-- Can launch at login
+- Starts automatically every time you log in (you can turn this off in its menu)
 - Adapts to light and dark mode
 - No Dock icon, no tracking, no network requests. Under 500 lines of Swift.
 - Works on Apple Silicon and Intel Macs, macOS 13 Ventura or later
@@ -51,6 +51,8 @@ macOS remembers where you put it.
 Click the readout to open the menu, where you can choose:
 **Units**, **Layout**, **Update Every**, **Launch at Login**, and **Quit**.
 
+Quitting only closes it until your next login. To stop it from starting at login, untick **Launch at Login**.
+
 ## Build from source
 
 You only need Apple's free Command Line Tools (`xcode-select --install`). Xcode isn't required.
@@ -79,6 +81,7 @@ AirDrop and loopback are left out, so the same traffic isn't counted twice.
 ## Uninstall
 
 Quit NetMeter from its menu, then delete `/Applications/NetMeter.app`.
+Once the app is deleted, it no longer starts at login.
 
 ## Releasing (for maintainers)
 

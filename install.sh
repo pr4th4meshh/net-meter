@@ -10,8 +10,16 @@ DEST="${NETMETER_DIR:-/Applications}"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
-echo "Downloading NetMeter..."
-curl -fsSL "$URL" -o "$TMP/NetMeter.zip"
+echo "Downloading NetMeter from GitHub..."
+if ! curl -fL --progress-bar --connect-timeout 15 --max-time 120 --retry 2 \
+        "$URL" -o "$TMP/NetMeter.zip"; then
+    echo ""
+    echo "Download failed. Check your internet connection (or VPN/firewall) and try again,"
+    echo "or download NetMeter.zip manually: https://github.com/$REPO/releases/latest"
+    exit 1
+fi
+
+echo "Unpacking..."
 ditto -x -k "$TMP/NetMeter.zip" "$TMP"
 
 # Fall back to ~/Applications if /Applications isn't writable (non-admin users).
@@ -20,6 +28,7 @@ if [ ! -w "$DEST" ]; then
     mkdir -p "$DEST"
 fi
 
+echo "Installing to $DEST..."
 pkill -x NetMeter 2>/dev/null || true
 rm -rf "$DEST/NetMeter.app"
 ditto "$TMP/NetMeter.app" "$DEST/NetMeter.app"

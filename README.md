@@ -16,13 +16,28 @@ It shows your live download ↓ and upload ↑ speed right next to the battery a
 
 ## Install
 
+### Option 1: one command (easiest)
+
+Open **Terminal** and paste:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/pr4th4meshh/net-meter/main/install.sh | bash
+```
+
+This downloads the latest release, puts it in your Applications folder and opens it.
+Run the same command again later to update. You can [read the script](install.sh) first.
+
+### Option 2: download manually
+
 1. Download **NetMeter.zip** from the [Releases](../../releases) page and unzip it.
-2. Drag **NetMeter.app** into your **Applications** folder.
-3. The first time you open it, macOS will warn you because the app isn't notarized
-   (notarizing requires a paid Apple developer account). To open it anyway:
-   - **Right-click** NetMeter.app → **Open** → **Open**, or
-   - go to **System Settings → Privacy & Security** and click **Open Anyway**, or
-   - run this in Terminal: `xattr -dr com.apple.quarantine /Applications/NetMeter.app`
+2. Drag **NetMeter.app** into your **Applications** folder and open it.
+3. macOS will say it can't verify the app. That's because it isn't notarized, which
+   needs a paid Apple developer account; it doesn't mean anything is wrong. To allow it:
+   - Click **Done** on the warning.
+   - Open **System Settings → Privacy & Security**, scroll down, and click **Open Anyway** next to NetMeter.
+   - Confirm with your password or Touch ID. You only need to do this once.
+
+   Or run this in Terminal instead: `xattr -dr com.apple.quarantine /Applications/NetMeter.app`
 
 If you'd rather not trust a downloaded binary, build it yourself (below). It takes about 30 seconds.
 

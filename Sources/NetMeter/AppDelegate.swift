@@ -54,7 +54,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         // Remembers where the user ⌘-dragged the icon in the menu bar.
-        statusItem.autosaveName = "ByteBarStatusItem"
+        statusItem.autosaveName = "NetMeterStatusItem"
         statusItem.button?.imagePosition = .imageOnly
 
         let menu = NSMenu()
@@ -186,7 +186,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let tip = NSMenuItem(title: "Tip: hold ⌘ and drag to move this icon", action: nil, keyEquivalent: "")
         tip.isEnabled = false
         menu.addItem(tip)
-        menu.addItem(ActionItem(title: "Quit ByteBar", key: "q") { NSApp.terminate(nil) })
+        menu.addItem(ActionItem(title: "Quit NetMeter", key: "q") { NSApp.terminate(nil) })
     }
 
     private func submenu(_ title: String, _ options: [(String, Bool, () -> Void)]) -> NSMenuItem {
@@ -212,7 +212,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         } catch {
             let alert = NSAlert()
             alert.messageText = "Couldn't change Launch at Login"
-            alert.informativeText = "\(error.localizedDescription)\n\nTip: move ByteBar.app into your Applications folder first."
+            alert.informativeText = "\(error.localizedDescription)\n\nTip: move NetMeter.app into your Applications folder first."
             alert.runModal()
         }
     }

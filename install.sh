@@ -1,6 +1,6 @@
 #!/bin/bash
 # Installs the latest NetMeter release into /Applications and opens it.
-#   curl -fsSL https://raw.githubusercontent.com/pr4th4meshh/net-meter/main/install.sh | bash
+#   curl -fsSL --connect-timeout 15 --max-time 60 https://github.com/pr4th4meshh/net-meter/releases/latest/download/install.sh | bash
 set -euo pipefail
 
 REPO="pr4th4meshh/net-meter"

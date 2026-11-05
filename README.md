@@ -21,7 +21,7 @@ It shows your live download ↓ and upload ↑ speed right next to the battery a
 Open **Terminal** and paste:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/pr4th4meshh/net-meter/main/install.sh | bash
+curl -fsSL --connect-timeout 15 --max-time 60 https://github.com/pr4th4meshh/net-meter/releases/latest/download/install.sh | bash
 ```
 
 This downloads the latest release, puts it in your Applications folder and opens it.

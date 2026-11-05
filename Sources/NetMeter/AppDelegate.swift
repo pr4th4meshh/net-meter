@@ -96,62 +96,56 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     private func refreshDisplay() {
         guard let button = statusItem?.button else { return }
-        let down = "↓ " + SpeedFormatter.speed(downSpeed, unit: unit)
-        let up = "↑ " + SpeedFormatter.speed(upSpeed, unit: unit)
+        // Arrows go at the END so they stay pinned to the right edge of each
+        // fixed-width column; only the numbers move as the speed changes.
+        let down = SpeedFormatter.speed(downSpeed, unit: unit) + " ↓"
+        let up = SpeedFormatter.speed(upSpeed, unit: unit) + " ↑"
 
         switch layout {
-        case .stacked:  button.image = renderStacked(top: up, bottom: down)
-        case .inline:   button.image = renderLine(down + "  " + up, widthTemplate: "↓ 888 MB/s  ↑ 888 MB/s")
-        case .downOnly: button.image = renderLine(down, widthTemplate: "↓ 888 MB/s")
+        case .stacked:  button.image = render(rows: [[up], [down]], fontSize: 9.5, weight: .medium)
+        case .inline:   button.image = render(rows: [[down, up]], fontSize: 12, weight: .regular)
+        case .downOnly: button.image = render(rows: [[down]], fontSize: 12, weight: .regular)
         }
-        button.toolTip = "Download: \(down)\nUpload: \(up)"
+        button.toolTip = "Download: \(SpeedFormatter.speed(downSpeed, unit: unit))\nUpload: \(SpeedFormatter.speed(upSpeed, unit: unit))"
 
         downItem.title = "Download:  " + SpeedFormatter.speed(downSpeed, unit: unit)
         upItem.title = "Upload:      " + SpeedFormatter.speed(upSpeed, unit: unit)
         totalItem.title = "Since launch:  ↓ \(SpeedFormatter.total(sessionTotal.received))  ↑ \(SpeedFormatter.total(sessionTotal.sent))"
     }
 
-    /// Fixed width so the icon doesn't jitter as numbers change.
-    private func width(of text: String, font: NSFont, template: String) -> CGFloat {
-        let attrs: [NSAttributedString.Key: Any] = [.font: font]
-        let templates = [template, template.replacingOccurrences(of: "MB/s", with: "Mbps")]
-        let fixed = templates.map { ($0 as NSString).size(withAttributes: attrs).width }.max() ?? 0
-        return ceil(max(fixed, (text as NSString).size(withAttributes: attrs).width))
-    }
-
-    private func renderStacked(top: String, bottom: String) -> NSImage {
-        let font = NSFont.monospacedDigitSystemFont(ofSize: 9.5, weight: .medium)
-        let w = max(width(of: top, font: font, template: "↑ 888 MB/s"),
-                    width(of: bottom, font: font, template: "↑ 888 MB/s"))
-        let h: CGFloat = 22
+    /// Draws text as a grid of fixed-width, right-aligned columns.
+    /// The column width comes from the widest possible value, so the image
+    /// size and the arrow positions never change as the numbers do.
+    private func render(rows: [[String]], fontSize: CGFloat, weight: NSFont.Weight) -> NSImage {
+        let font = NSFont.monospacedDigitSystemFont(ofSize: fontSize, weight: weight)
         let style = NSMutableParagraphStyle()
         style.alignment = .right
         let attrs: [NSAttributedString.Key: Any] = [.font: font, .paragraphStyle: style,
                                                     .foregroundColor: NSColor.black]
+        func textWidth(_ s: String) -> CGFloat { (s as NSString).size(withAttributes: attrs).width }
+
+        let widest = ["888 MB/s ↓", "888 Mbps ↓", "888 Kbps ↓"] + rows.flatMap { $0 }
+        let columnWidth = ceil(widest.map(textWidth).max() ?? 0)
+        let gap: CGFloat = 8
+        let columns = CGFloat(rows.map(\.count).max() ?? 1)
+        let w = columnWidth * columns + gap * (columns - 1)
+        let h: CGFloat = 22
+        let lineHeight = ceil(font.ascender - font.descender)
+        let rowStep = rows.count > 1 ? min(lineHeight, h / CGFloat(rows.count)) : lineHeight
+        let top = (h - rowStep * CGFloat(rows.count - 1) - lineHeight) / 2
+
         let image = NSImage(size: NSSize(width: w, height: h), flipped: true) { _ in
-            (top as NSString).draw(in: NSRect(x: 0, y: 0, width: w, height: 11), withAttributes: attrs)
-            (bottom as NSString).draw(in: NSRect(x: 0, y: 10.5, width: w, height: 11), withAttributes: attrs)
+            for (r, row) in rows.enumerated() {
+                for (c, text) in row.enumerated() {
+                    let x = CGFloat(c) * (columnWidth + gap)
+                    let y = top + CGFloat(r) * rowStep
+                    (text as NSString).draw(in: NSRect(x: x, y: y, width: columnWidth, height: lineHeight),
+                                            withAttributes: attrs)
+                }
+            }
             return true
         }
         image.isTemplate = true // auto-adapts to light/dark menu bar
-        return image
-    }
-
-    private func renderLine(_ text: String, widthTemplate: String) -> NSImage {
-        let font = NSFont.monospacedDigitSystemFont(ofSize: 12, weight: .regular)
-        let w = width(of: text, font: font, template: widthTemplate)
-        let h: CGFloat = 22
-        let style = NSMutableParagraphStyle()
-        style.alignment = .right
-        let attrs: [NSAttributedString.Key: Any] = [.font: font, .paragraphStyle: style,
-                                                    .foregroundColor: NSColor.black]
-        let textHeight = (text as NSString).size(withAttributes: attrs).height
-        let image = NSImage(size: NSSize(width: w, height: h), flipped: true) { _ in
-            (text as NSString).draw(in: NSRect(x: 0, y: (h - textHeight) / 2, width: w, height: textHeight),
-                                    withAttributes: attrs)
-            return true
-        }
-        image.isTemplate = true
         return image
     }
 

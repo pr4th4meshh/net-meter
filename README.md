@@ -1,3 +1,5 @@
+<img src="docs/icon.png" width="96" alt="NetMeter app icon">
+
 # NetMeter
 
 A tiny, free, open-source **internet speed monitor for the macOS menu bar**.
@@ -27,7 +29,15 @@ curl -fsSL --connect-timeout 15 --max-time 60 https://github.com/pr4th4meshh/net
 This downloads the latest release, puts it in your Applications folder and opens it.
 Run the same command again later to update. You can [read the script](install.sh) first.
 
-### Option 2: download manually
+### Option 2: Homebrew
+
+```bash
+brew install pr4th4meshh/tap/netmeter
+```
+
+Then open NetMeter once from your Applications folder. Update with `brew upgrade netmeter`.
+
+### Option 3: download manually
 
 1. Download **NetMeter.zip** from the [Releases](../../releases) page and unzip it.
 2. Drag **NetMeter.app** into your **Applications** folder and open it.

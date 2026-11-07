@@ -18,6 +18,7 @@ enum Layout: String, CaseIterable {
 final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var statusItem: NSStatusItem!
     private var timer: Timer?
+    private let updater = UpdateChecker()
 
     private var lastCounters: InterfaceCounters?
     private var lastSampleTime = Date()
@@ -58,6 +59,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         statusItem.button?.imagePosition = .imageOnly
 
         let menu = NSMenu()
+        menu.autoenablesItems = false // respect each item's isEnabled
         menu.delegate = self
         statusItem.menu = menu
 
@@ -180,6 +182,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
         menu.addItem(login)
 
+        let update = ActionItem(title: updater.isChecking ? "Checking for Updates…" : "Check for Updates…") {
+            [weak self] in self?.updater.check()
+        }
+        update.isEnabled = !updater.isChecking
+        menu.addItem(update)
+
         menu.addItem(.separator())
         let tip = NSMenuItem(title: "Tip: hold ⌘ and drag to move this icon", action: nil, keyEquivalent: "")
         tip.isEnabled = false
@@ -235,6 +243,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             let alert = NSAlert()
             alert.messageText = "Couldn't change Launch at Login"
             alert.informativeText = "\(error.localizedDescription)\n\nTip: move NetMeter.app into your Applications folder first."
+            NSApp.activate(ignoringOtherApps: true)
             alert.runModal()
         }
     }

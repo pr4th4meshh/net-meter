@@ -13,7 +13,7 @@ It shows your live download ↓ and upload ↑ speed right next to the battery a
 - Shows the data used since launch
 - Starts automatically every time you log in (you can turn this off in its menu)
 - Adapts to light and dark mode
-- No Dock icon, no tracking, no network requests. Under 500 lines of Swift.
+- No Dock icon, no tracking. It only goes online when you click **Check for Updates…**. About 500 lines of Swift.
 - Works on Apple Silicon and Intel Macs, macOS 13 Ventura or later
 
 ## Install
@@ -59,7 +59,9 @@ macOS remembers where you put it.
 ## Settings
 
 Click the readout to open the menu, where you can choose:
-**Units**, **Layout**, **Update Every**, **Launch at Login**, and **Quit**.
+**Units**, **Layout**, **Update Every**, **Launch at Login**, **Check for Updates…** and **Quit**.
+
+**Check for Updates…** asks GitHub for the latest version, and only when you click it. If there's a newer one, **Update Now** installs it and reopens NetMeter.
 
 Quitting only closes it until your next login. To stop it from starting at login, untick **Launch at Login**.
 

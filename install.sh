@@ -29,7 +29,9 @@ if [ ! -w "$DEST" ]; then
 fi
 
 echo "Installing to $DEST..."
-pkill -x NetMeter 2>/dev/null || true
+# -a: also quit a NetMeter that started this script (its in-app "Update Now"),
+# which pkill would otherwise skip because it is one of our parent processes.
+pkill -a -x NetMeter 2>/dev/null || true
 rm -rf "$DEST/NetMeter.app"
 ditto "$TMP/NetMeter.app" "$DEST/NetMeter.app"
 xattr -dr com.apple.quarantine "$DEST/NetMeter.app" 2>/dev/null || true
